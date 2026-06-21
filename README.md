@@ -39,6 +39,8 @@ Este projeto consiste em um **sistema de controle de velocidade** para um motor 
 
 O sistema é alimentado por **8 pilhas AA (2 cases de 4 pilhas em série)**, fornecendo **12V** para a ponte H, garantindo potência suficiente para o motor.
 
+[![Assista ao vídeo do projeto](https://img.youtube.com/vi/Af0YiHf767o/maxresdefault.jpg)](https://youtu.be/Af0YiHf767o)
+
 ---
 
 ## 🎯 Objetivos
