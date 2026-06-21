@@ -1,6 +1,6 @@
 /*
  * Controle de Motor DC com Encoder + TB6612FNG + LCD I2C + Controle PID
- * Hardware: Arduino Mega 2560
+ * Hardware: Arduino Mega UNO
  */
 
 #include <Wire.h>
@@ -79,7 +79,7 @@ void controladorPID() {
   unsigned long elapsedTime = currentTime - lastTime;
   
   if (elapsedTime >= PID_INTERVAL) {
-    // 1. Calcula o RPM atual baseado na janela de 50ms
+    // Calcula o RPM atual baseado na janela de 50ms
     float frequency = (float)pulseCount / (elapsedTime / 1000.0);
     rpm = (frequency * 60.0) / PULSES_PER_REVOLUTION;
     inputRPM = rpm;
@@ -88,7 +88,7 @@ void controladorPID() {
     pulseCount = 0;
     lastTime = currentTime;
     
-    // 2. Algoritmo PID
+    // Algoritmo PID
     error = setpointRPM - inputRPM;
     
     // Termo Integral com Anti-Windup (evita que o Ki acumule infinitamente se o motor travar)
@@ -109,7 +109,7 @@ void controladorPID() {
     // Salva o erro para o próximo ciclo derivativo
     lastError = error;
 
-    // 3. Aplica a velocidade corrigida no motor (Sentido horário fixo)
+    // Aplica a velocidade corrigida no motor (Sentido horário fixo)
     digitalWrite(AIN1, HIGH);
     digitalWrite(AIN2, LOW);
     analogWrite(PWMA, (int)outputPWM);
@@ -117,23 +117,23 @@ void controladorPID() {
 }
 
 void loop() {
-  // 1. Lê o potenciômetro
+  // Lê o potenciômetro
   int potValue = analogRead(POT_PIN);
   
-  // Se o potenciômetro estiver quase no zero (ruído menor que 5), força o alvo para 0
+  // Se o potenciômetro estiver quase no zero (ruído menor que 10), força o alvo para 0
   if (potValue < 10) {
     setpointRPM = 0;
   } else {
-    setpointRPM = map(potValue, 10, 1023, 10, 300); 
     // Começa em 10 RPM para evitar que o motor fique tentando girar sem força
+    setpointRPM = map(potValue, 10, 1023, 10, 300);
   }
   
-  // 2. Executa o cálculo e correção do PID (controlado internamente a cada 50ms)
+  // Executa o cálculo e correção do PID (controlado internamente a cada 50ms)
   controladorPID();
   
-  // 3. Janela de atualização do LCD (roda de forma independente do loop)
+  // Janela de atualização do LCD
   unsigned long currentTime = millis();
-  if (currentTime - lastLCDTime >= 350) { // 350ms é o "doce lar" para o LCD não borrar
+  if (currentTime - lastLCDTime >= 350) { // 350ms é para o LCD não borrar
     
     lcd.setCursor(0, 0);
     lcd.print("Alvo: ");
@@ -148,8 +148,7 @@ void loop() {
     lastLCDTime = currentTime; // Reseta o cronômetro do LCD
   }
   
-  // 4. Log Serial formatado para o Plotter (O Trace)
-  // O texto antes do dois-pontos vira a legenda do gráfico
+  // Log Serial formatado para o Plotter (O Trace)
   Serial.print("Alvo_RPM:");
   Serial.print(setpointRPM);
   Serial.print(" "); // espaço separa as variáveis no Plotter
